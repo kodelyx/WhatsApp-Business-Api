@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  whatsapp-dashboard:
+    image: ghcr.io/kodelyx/whatsapp-business-api:latest
+    container_name: whatsapp-dashboard
+    restart: always
+    ports:
+      - "${PORT:-9090}:${PORT:-9090}"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data

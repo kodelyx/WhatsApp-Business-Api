@@ -53,13 +53,10 @@ go run src/webhook.go src/campaign.go src/db.go src/templates.go
 ```
 Open **[http://localhost:9090](http://localhost:9090)** in your browser.
 
-### Docker Setup
+### Docker Compose (1-Click Setup)
 ```bash
-# Build the Docker Image
-docker build -t whatsapp-management-dashboard .
-
-# Run the Docker Container
-docker run -d -p 9090:9090 --env-file .env whatsapp-management-dashboard
+# Start the container in background
+docker compose up -d
 ```
 
 ---
