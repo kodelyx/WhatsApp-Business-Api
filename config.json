@@ -1,0 +1,17 @@
+{
+  "campaign": {
+    "campaignName": "My Campaign",
+    "template": "all_rotation",
+    "var1": "Hello",
+    "var2": "Your order is ready",
+    "var3": "Thank you for choosing us",
+    "var4": "Contact support for help",
+    "buttonParam": "9XXXXXXXXX",
+    "numbers": ""
+  },
+  "fallbackTemplates": [
+    "your_template_name_1",
+    "your_template_name_2",
+    "your_template_name_3"
+  ]
+}

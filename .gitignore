@@ -1,7 +1,23 @@
+# Local environment config and secrets
 .env
+github
+Cloudflare Api
+
+# Local databases and runtime data
 data/
 *.db
-*.db-shm
-*.db-wal
+
+# Build outputs
+webhook
+webhook.exe
+webhook_bin
+send_bin
+
+# Reference folders
+chat/
+
+# Local data files
+numbers.txt
+
+# OS metadata
 .DS_Store
-whatsapp-bot

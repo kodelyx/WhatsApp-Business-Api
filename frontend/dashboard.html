@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>WA Manage</title>
+	<!-- Google Fonts: Plus Jakarta Sans -->
+	<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<!-- Lucide Icons CDN -->
+	<script src="https://unpkg.com/lucide@latest"></script>
+	<link rel="stylesheet" href="/frontend/style.css?v=1.1.01">
+</head>
+
+<body>
+	<!-- Liquid Background Blobs -->
+	<div class="bg-blobs">
+		<div class="blob blob-1"></div>
+		<div class="blob blob-2"></div>
+		<div class="blob blob-3"></div>
+	</div>
+
+	<div class="container">
+		<header>
+			<h1><i data-lucide="layout-dashboard" style="color: #10b981; width:28px; height:28px;"></i> WA Manage
+			</h1>
+
+			<div class="tabs">
+				<button class="tab-btn active" id="btn-sender" onclick="showTab('sender')"><i data-lucide="send"
+						style="width:16px; height:16px;"></i> Send</button>
+				<button class="tab-btn" id="btn-dashboard" onclick="showTab('dashboard')"><i data-lucide="bar-chart-3"
+						style="width:16px; height:16px;"></i> Report</button>
+				<button class="tab-btn" id="btn-inbox" onclick="showTab('inbox')"><i data-lucide="message-square"
+						style="width:16px; height:16px;"></i> Inbox</button>
+			</div>
+		</header>
+
+		<!-- Campaign Sending Progress Banner (always visible on sender tab) -->
+		<div id="compact-sending-progress" style="margin-bottom: 16px; padding: 10px 16px; border-radius: 14px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.04)); border: 1px solid rgba(16, 185, 129, 0.15); backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(16, 185, 129, 0.08);">
+			<div style="width: 100%; height: 3px; background: rgba(0, 0, 0, 0.05); border-radius: 1.5px; overflow: hidden; margin-bottom: 10px;">
+				<div id="compact-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #059669, #10b981); background-size: 200% 100%; transition: width 0.4s ease; border-radius: 1.5px; animation: progressShimmer 2s ease infinite;"></div>
+			</div>
+			<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+				<div style="background: rgba(255,255,255,0.6); border-radius: 10px; padding: 6px 8px; text-align: center; border: 1px solid rgba(0,0,0,0.04);">
+					<div style="font-size: 8px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Sent</div>
+					<div id="compact-stat-sent" style="font-size: 15px; font-weight: 800; color: #10b981;">0</div>
+				</div>
+				<div style="background: rgba(255,255,255,0.6); border-radius: 10px; padding: 6px 8px; text-align: center; border: 1px solid rgba(0,0,0,0.04);">
+					<div style="font-size: 8px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Remaining</div>
+					<div id="compact-stat-remaining" style="font-size: 15px; font-weight: 800; color: #f59e0b;">0</div>
+				</div>
+				<div style="background: rgba(255,255,255,0.6); border-radius: 10px; padding: 6px 8px; text-align: center; border: 1px solid rgba(0,0,0,0.04);">
+					<div style="font-size: 8px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Speed</div>
+					<div id="compact-stat-speed" style="font-size: 15px; font-weight: 800; color: #3b82f6;">–</div>
+				</div>
+				<div style="background: rgba(255,255,255,0.6); border-radius: 10px; padding: 6px 8px; text-align: center; border: 1px solid rgba(0,0,0,0.04);">
+					<div style="font-size: 8px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">ETA</div>
+					<div id="compact-stat-eta" style="font-size: 15px; font-weight: 800; color: #8b5cf6;">–</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- DASHBOARD TAB -->
+		<div id="tab-dashboard" class="tab-content">
+			<div
+				style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+				<h3
+					style="font-size:13px; color:#475569; text-transform:uppercase; letter-spacing:1px; font-weight:700; display:flex; align-items:center; gap:6px;">
+					<i data-lucide="line-chart" style="width:16px; height:16px; color:#10b981;"></i> Campaign Metrics
+				</h3>
+				<div class="custom-select-container" id="campaign-select-container" style="width: 220px;">
+					<input type="hidden" id="campaign" value="{{CAMPAIGN_SELECTED_VALUE}}">
+					<div class="custom-select-trigger" id="campaign-select-trigger"
+						onclick="toggleCampaignDropdown(event)">
+						<span id="campaign-select-label">{{CAMPAIGN_SELECTED_LABEL}}</span>
+						<i data-lucide="chevron-down"
+							style="width: 12px; height: 12px; margin-left: auto; color: #475569;"></i>
+					</div>
+					<div class="custom-select-dropdown" id="campaign-select-dropdown"
+						style="top: calc(100% + 4px); right: 0; left: auto; min-width: 220px;">
+						<div class="custom-select-search-wrapper">
+							<i data-lucide="search" style="width: 12px; height: 12px; color: #64748b;"></i>
+							<input type="text" id="campaign-select-search" placeholder="Search campaigns..."
+								oninput="filterCampaignOptions(this.value)" onclick="event.stopPropagation()">
+						</div>
+						<div class="custom-select-options" id="campaign-select-options-list">
+							{{CAMPAIGN_OPTIONS_HTML}}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="grid" id="tiles">
+				<div class="tile total">
+					<div class="tile-header">
+						<span class="tile-label">Total Contacts</span>
+						<div class="tile-icon"><i data-lucide="users" style="width: 18px; height: 18px;"></i></div>
+					</div>
+					<div class="tile-value" id="t-total">-</div>
+					<div class="tile-sub" id="s-total">total campaign items</div>
+				</div>
+				<div class="tile sent">
+					<div class="tile-header">
+						<span class="tile-label">Sent</span>
+						<div class="tile-icon"><i data-lucide="send" style="width: 18px; height: 18px;"></i></div>
+					</div>
+					<div class="tile-value" id="t-sent">-</div>
+					<div class="tile-sub" id="s-sent">accepted by meta</div>
+				</div>
+				<div class="tile delivered">
+					<div class="tile-header">
+						<span class="tile-label">Delivered</span>
+						<div class="tile-icon"><i data-lucide="check-check" style="width: 18px; height: 18px;"></i></div>
+					</div>
+					<div class="tile-value" id="t-delivered">-</div>
+					<div class="tile-sub" id="s-delivered">0.0% delivery rate</div>
+				</div>
+				<div class="tile read">
+					<div class="tile-header">
+						<span class="tile-label">Read</span>
+						<div class="tile-icon"><i data-lucide="eye" style="width: 18px; height: 18px;"></i></div>
+					</div>
+					<div class="tile-value" id="t-read">-</div>
+					<div class="tile-sub" id="s-read">0.0% read rate</div>
+				</div>
+				<div class="tile failed">
+					<div class="tile-header">
+						<span class="tile-label">Failed</span>
+						<div class="tile-icon"><i data-lucide="alert-triangle" style="width: 18px; height: 18px;"></i></div>
+					</div>
+					<div class="tile-value" id="t-failed">-</div>
+					<div class="tile-sub" id="s-failed">failed deliveries</div>
+				</div>
+				<div class="tile responses">
+					<div class="tile-header">
+						<span class="tile-label">Button Clicks</span>
+						<div class="tile-icon"><i data-lucide="message-square-dashed" style="width: 18px; height: 18px;"></i></div>
+					</div>
+					<div class="tile-value" id="t-clicks">-</div>
+					<div class="tile-sub" id="s-clicks">0.0% click rate</div>
+				</div>
+				<div class="tile optouts">
+					<div class="tile-header">
+						<span class="tile-label">Stop Requests</span>
+						<div class="tile-icon"><i data-lucide="shield-alert" style="width: 18px; height: 18px;"></i></div>
+					</div>
+					<div class="tile-value" id="t-stops">-</div>
+					<div class="tile-sub" id="s-stops">0.0% opt-out rate</div>
+				</div>
+			</div>
+
+			<div class="speed" style="margin-bottom: 24px; margin-top: 24px;">
+				<h3><i data-lucide="activity" style="width:16px; height:16px; color:#10b981;"></i> Delivery Report</h3>
+				<div class="bar-container" id="bar"></div>
+				<div class="bar-legend">
+					<span class="l-sent">Sent</span>
+					<span class="l-delivered">Delivered</span>
+					<span class="l-read">Read</span>
+					<span class="l-failed">Failed</span>
+				</div>
+			</div>
+
+			<!-- Worker Execution Console Card (Inline) -->
+			<div class="section" style="margin-top: 24px;">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+					<h3
+						style="font-size:13px; color:#475569; text-transform:uppercase; letter-spacing:1px; font-weight:700; display:flex; align-items:center; gap:8px;">
+						<i data-lucide="terminal" style="width:16px; height:16px; color:#10b981;"></i> Logs
+					</h3>
+					<div class="status-badge-container">
+						<div class="console-indicators" style="display:flex; align-items:center; gap:6px;">
+							<div class="console-dot red" id="console-status-dot"></div>
+							<span
+								style="font-size: 9px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Logs</span>
+						</div>
+						<div style="width: 1px; height: 12px; background: rgba(0, 0, 0, 0.08);"></div>
+						<div style="display: flex; align-items: center; gap: 6px;">
+							<div class="pulse-dot"></div>
+							<span
+								style="font-size: 9px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Webhook</span>
+						</div>
+					</div>
+				</div>
+				<div class="console-body" id="console-body">
+					<div class="console-placeholder" id="console-placeholder"
+						style="color: #64748b; text-align: center; padding-top: 120px; font-style: italic;">Waiting for
+						execution context logs...</div>
+				</div>
+			</div>
+
+			<div class="refresh-badge"><span class="pulse">●</span> Auto-refreshing metrics statistics</div>
+		</div>
+
+		<!-- SENDER TAB -->
+		<div id="tab-sender" class="tab-content active">
+			<div class="sender-split-grid">
+				<!-- Left Pane: Input fields Form - COMPACT -->
+				<div class="form-card">
+					<div class="form-grid">
+						<div class="form-row-2col">
+							<div class="form-group">
+								<label for="field-campaign-name"><i data-lucide="tag"
+										style="width: 14px; height: 14px; color: #10b981;"></i> Campaign Name</label>
+								<input type="text" id="field-campaign-name" value="{{CAMPAIGN_NAME}}"
+									placeholder="e.g. Bulk Offer July" oninput="updatePreview()">
+							</div>
+							<div class="form-group" id="group-template">
+								<label><i data-lucide="file-text"
+										style="width: 14px; height: 14px; color: #10b981;"></i> Message Template</label>
+								<input type="hidden" id="field-template" value="all_rotation">
+								<div class="custom-select-container" id="template-select-container">
+									<div class="custom-select-trigger" onclick="toggleDropdown()">
+										<span id="custom-select-label">🚀 Smart Rotation</span>
+										<i data-lucide="chevron-down"
+											style="width: 14px; height: 14px; margin-left: auto; color: #475569;"></i>
+									</div>
+									<div class="custom-select-dropdown" id="custom-select-dropdown">
+										<div class="custom-select-search-wrapper">
+											<i data-lucide="search"
+												style="width: 12px; height: 12px; color: #64748b;"></i>
+											<input type="text" id="custom-select-search"
+												placeholder="Search templates..."
+												oninput="filterDropdownOptions(this.value)">
+										</div>
+										<div class="custom-select-options" id="custom-select-options-list">
+											<!-- Options injected by JavaScript -->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+							<div class="form-group">
+								<label for="field-var1">Line 1</label>
+								<input type="text" id="field-var1" value="{{VAR1}}" oninput="updatePreview()">
+							</div>
+							<div class="form-group">
+								<label for="field-var2">Line 2</label>
+								<input type="text" id="field-var2" value="{{VAR2}}" oninput="updatePreview()">
+							</div>
+							<div class="form-group">
+								<label for="field-var3">Line 3</label>
+								<input type="text" id="field-var3" value="{{VAR3}}" oninput="updatePreview()">
+							</div>
+							<div class="form-group">
+								<label for="field-var4">Line 4</label>
+								<input type="text" id="field-var4" value="{{VAR4}}" oninput="updatePreview()">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="field-button-param"><i data-lucide="phone"
+									style="width: 14px; height: 14px; color: #10b981;"></i> WhatsApp Button</label>
+							<input type="text" id="field-button-param" value="{{BUTTON_PARAM}}"
+								oninput="updatePreview()" style="max-width: 240px;">
+						</div>
+						<div class="form-group" style="display: none;">
+							<label for="field-workers"><i data-lucide="cpu"
+									style="width: 14px; height: 14px; color: #10b981;"></i> Worker Goroutines
+								(Concurrency)</label>
+							<input type="number" id="field-workers" value="40" min="1" max="100">
+						</div>
+
+						<div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
+							<label><i data-lucide="users" style="width: 14px; height: 14px; color: #10b981;"></i> Add
+								Numbers</label>
+							<div class="form-row-numbers-media"
+								style="flex-grow: 1; min-height: 120px; align-items: stretch;">
+								<div style="display: flex; flex-direction: column; flex-grow: 1;">
+									<textarea id="field-numbers"
+										style="flex-grow: 1; height: 100%; min-height: 100px; resize: none;"
+										placeholder="91XXXXXXXXXX&#10;91YYYYYYYYYY">{{NUMBERS}}</textarea>
+									<span id="numbers-count-badge"
+										style="font-size:10px; font-weight:700; color:#475569; margin-top:4px; text-transform:uppercase; letter-spacing:0.5px;">0
+										numbers loaded</span>
+								</div>
+								<div class="file-drop-zone" id="file-drop-zone" onclick="triggerFileSelect()">
+									<input type="file" id="file-input" accept=".txt,.csv,.xlsx,.xls"
+										style="display: none;" onchange="handleFileSelect(event)">
+									<div class="drop-zone-content">
+										<i data-lucide="upload-cloud" class="drop-icon"
+											style="width: 24px; height: 24px; color: #10b981; margin-bottom: 6px;"></i>
+										<span class="drop-text" style="font-size: 11px;">Drag & Drop Numbers</span>
+										<span class="drop-subtext" style="font-size: 9px; line-height: 1.2;">TXT, CSV,
+											Excel (.xlsx)</span>
+									</div>
+								</div>
+								<div class="file-drop-zone media-zone" id="media-drop-zone"
+									onclick="triggerMediaSelect()">
+									<input type="file" id="media-input" accept="image/*,video/*,application/pdf"
+										style="display: none;" onchange="handleMediaSelect(event)">
+									<div class="drop-zone-content" id="media-drop-content">
+										<i data-lucide="image" class="drop-icon"
+											style="width: 24px; height: 24px; color: #3b82f6; margin-bottom: 6px;"></i>
+										<span class="drop-text" style="font-size: 11px;">Drag & Drop Media</span>
+										<span class="drop-subtext" style="font-size: 9px; line-height: 1.2;">Images,
+											Videos, PDF</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="btn-row">
+						<button class="btn btn-primary" id="btn-start" onclick="startCampaign()"><i data-lucide="send"
+								style="width:16px; height:16px;"></i> Send</button>
+						<button class="btn" id="btn-save" onclick="saveConfiguration()"
+							style="background: rgba(255, 255, 255, 0.65); border: 1px solid rgba(0, 0, 0, 0.08); color: #334155;"><i
+								data-lucide="save" style="width:16px; height:16px; color: #10b981;"></i> Save</button>
+						<button class="btn" id="btn-clear" onclick="clearConfiguration()"
+							style="background: rgba(255, 255, 255, 0.65); border: 1px solid rgba(0, 0, 0, 0.08); color: #ef4444;"><i
+								data-lucide="trash-2" style="width:16px; height:16px; color: #ef4444;"></i> Clear</button>
+					</div>
+				</div>
+
+				<!-- Right Pane: Real-time WhatsApp Preview Mockup - ENLARGED -->
+				<div class="preview-card">
+					<h3><i data-lucide="smartphone" style="width:16px; height:16px; color:#10b981;"></i> Live WhatsApp
+						Preview</h3>
+
+					<div class="phone-mockup">
+						<div class="phone-header">
+							<div class="phone-avatar"
+								style="background: #f8fafc; width: 32px; height: 32px; display: block; overflow: hidden; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.08);">
+								{{AVATAR_HTML}}
+							</div>
+							<div class="phone-header-info">
+								<span class="phone-name">{{RECIPIENT_NAME}} <i data-lucide="check-circle-2"
+										style="width: 12.5px; height: 12.5px; fill: #00e676; color: #ffffff; display: inline-block; vertical-align: middle; stroke-width: 2.5px; margin-left: 2px;"></i></span>
+								<span class="phone-status">online</span>
+							</div>
+							<div class="phone-actions">
+								<i data-lucide="video" style="width:14px; height:14px;"></i>
+								<i data-lucide="phone" style="width:14px; height:14px;"></i>
+								<i data-lucide="more-vertical" style="width:14px; height:14px;"></i>
+							</div>
+						</div>
+
+						<div class="phone-body">
+							<div class="wa-bubble" style="opacity: 0.6;">
+								<div
+									style="height: 12px; background: rgba(0, 0, 0, 0.08); border-radius: 4px; width: 85%; margin-bottom: 8px;">
+								</div>
+								<div
+									style="height: 12px; background: rgba(0, 0, 0, 0.08); border-radius: 4px; width: 60%; margin-bottom: 8px;">
+								</div>
+								<div
+									style="height: 12px; background: rgba(0, 0, 0, 0.08); border-radius: 4px; width: 75%; margin-bottom: 12px;">
+								</div>
+								<div class="wa-time-row">
+									<span id="preview-time">12:00 PM</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="phone-input-bar">
+							<div class="phone-input-box">
+								<i data-lucide="smile" style="width:14px; height:14px; color:#8696a0;"></i>
+								<span>Message</span>
+								<i data-lucide="paperclip"
+									style="width:14px; height:14px; color:#8696a0; margin-left: auto;"></i>
+								<i data-lucide="camera" style="width:14px; height:14px; color:#8696a0;"></i>
+							</div>
+							<div class="phone-mic-btn">
+								<i data-lucide="mic" style="width:14px; height:14px; color:#ffffff;"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- INBOX TAB -->
+		<div id="tab-inbox" class="tab-content">
+			<div class="inbox-split-grid">
+				<!-- Left Pane: Chat Contacts List -->
+				<div class="inbox-contacts-card">
+					<div class="inbox-contacts-header" style="display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.06); font-weight: normal;">
+						<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+							<div style="display: flex; align-items: center; gap: 8px;">
+								<i data-lucide="users" style="width:16px; height:16px; color:#10b981;"></i>
+								<span style="font-weight: 700; color: #0f172a; font-size: 14px;">Chats</span>
+							</div>
+							<button onclick="deleteAllChats()" title="Clear All Chats" style="background: none; border: none; padding: 4px; color: #ef4444; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+								<i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+							</button>
+						</div>
+						<div id="chats-stats-badges" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px;">
+						</div>
+					</div>
+					<div style="padding: 10px 14px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); position: relative; display: flex; align-items: center;">
+						<i data-lucide="search" style="position: absolute; left: 24px; color: #94a3b8; width: 14px; height: 14px; pointer-events: none;"></i>
+						<input type="text" id="inbox-search-input" placeholder="Search or type a new number..."
+							style="width: 100%; height: 38px; padding: 6px 12px 6px 36px; font-size: 13px; border-radius: 10px; border: 1px solid rgba(0, 0, 0, 0.08); background: rgba(248, 250, 252, 0.8); outline: none; transition: all 0.2s ease;"
+							oninput="filterChats(this.value)"
+							onkeydown="if(event.key === 'Enter') startNewChat()"
+							onfocus="this.style.borderColor='#10b981'; this.style.background='#ffffff'; this.style.boxShadow='0 0 0 3px rgba(16, 185, 129, 0.1)';"
+							onblur="this.style.borderColor='rgba(0, 0, 0, 0.08)'; this.style.background='rgba(248, 250, 252, 0.8)'; this.style.boxShadow='none';">
+					</div>
+					<div class="inbox-contacts-list" id="inbox-contacts-list">
+						<div style="text-align:center;color:#64748b;padding:30px;font-style:italic;">Loading chats...
+						</div>
+					</div>
+				</div>
+
+				<!-- Right Pane: Active Chat Window -->
+				<div class="inbox-chat-card">
+					<div class="inbox-chat-header" id="inbox-chat-header">
+						<span style="font-weight:600;color:#0f172a;">Select a chat to start messaging</span>
+					</div>
+					<div class="inbox-chat-messages" id="inbox-chat-messages">
+						<div style="text-align:center;color:#64748b;padding:100px 30px;font-style:italic;">No active
+							chat selected</div>
+					</div>
+					<div class="inbox-chat-input-area" id="inbox-chat-input-area" style="display:none;">
+						<textarea id="inbox-message-text" placeholder="Type a message..."
+							onkeydown="handleInboxKeydown(event)"></textarea>
+						<button class="btn btn-primary" onclick="sendInboxMessage()"
+							style="padding: 10px 16px; display:flex; align-items:center; gap:6px;">
+							<i data-lucide="send" style="width:14px; height:14px;"></i> Send
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+	<script src="/frontend/app.js?v=1.1.01" defer></script>
+</body>
+
+</html>
