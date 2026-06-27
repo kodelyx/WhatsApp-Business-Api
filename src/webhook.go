@@ -749,9 +749,13 @@ func handleDashboard(w http.ResponseWriter, r *http.Request) {
 		campaignOptionsHtml += fmt.Sprintf(`<div class="custom-select-option%s" data-value="%s" onclick="selectCampaignOption('%s', '%s')"><span>%s</span>%s</div>`, selectedClass, c, c, c, c, checkmarkHtml)
 	}
 
-	htmlData, err := os.ReadFile("frontend/dashboard.html")
+	dashboardPath := "src/frontend/dashboard.html"
+	if _, err := os.Stat(dashboardPath); err != nil {
+		dashboardPath = "frontend/dashboard.html"
+	}
+	htmlData, err := os.ReadFile(dashboardPath)
 	if err != nil {
-		http.Error(w, "❌ frontend/dashboard.html not found: "+err.Error(), 500)
+		http.Error(w, "❌ dashboard.html not found: "+err.Error(), 500)
 		return
 	}
 
@@ -1271,7 +1275,11 @@ func main() {
 	mux.HandleFunc("/api/delete-all-chats", handleDeleteAllChats)
 
 	// Static frontend assets handler
-	mux.Handle("/frontend/", http.StripPrefix("/frontend/", http.FileServer(http.Dir("frontend"))))
+	frontendDir := "src/frontend"
+	if _, err := os.Stat(frontendDir); err != nil {
+		frontendDir = "frontend"
+	}
+	mux.Handle("/frontend/", http.StripPrefix("/frontend/", http.FileServer(http.Dir(frontendDir))))
 
 	// Dashboard UI
 	mux.HandleFunc("/", handleDashboard)
