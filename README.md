@@ -34,6 +34,7 @@
 
 ## ⚡ Quick Start
 
+### Local Setup
 ```bash
 # 1. Clone & Copy config
 cp .env.example .env
@@ -52,6 +53,15 @@ go run src/webhook.go src/campaign.go src/db.go src/templates.go
 ```
 Open **[http://localhost:9090](http://localhost:9090)** in your browser.
 
+### Docker Setup
+```bash
+# Build the Docker Image
+docker build -t whatsapp-management-dashboard .
+
+# Run the Docker Container
+docker run -d -p 9090:9090 --env-file .env whatsapp-management-dashboard
+```
+
 ---
 
 ## 📡 Webhook Setup
@@ -66,6 +76,11 @@ Open **[http://localhost:9090](http://localhost:9090)** in your browser.
 * `replies`: Two-way chat messages.
 * `contacts`: Name directory list.
 * `campaigns`: Cached analytics data.
+
+---
+
+## 👥 Contributors
+* **Akash Yadav** ([@kodelyx](https://github.com/kodelyx)) — Creator & Lead Developer
 
 ---
 
