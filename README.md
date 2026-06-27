@@ -1,14 +1,9 @@
-<div align="center">
-<img src="assets/banner.png" alt="WhatsApp Business API Dashboard Banner" width="100%" style="border-radius: 8px; margin-bottom: 15px;" />
-
 # 📱 WhatsApp Management Dashboard
 
 ### Self-hosted Go/JS WhatsApp campaign broadcaster and real-time chat inbox using Meta Cloud API.
 
 [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square&logo=go&logoColor=white)](https://go.dev/)
 [![License](https://img.shields.io/github/license/kodelyx/WhatsApp-Business-Api?style=flat-square&color=ff3366)](LICENSE)
-
-</div>
 
 ---
 
@@ -19,6 +14,21 @@
 * **🔄 Auto Fallback:** Dynamically rotates and retries template sends up to 3 times on failures.
 * **🏷️ Alias Directory:** Inline renaming of contacts saved in SQLite database.
 * **🎨 Glassmorphic UI:** Modern responsive dark/light style UI.
+
+---
+
+## 📸 Interface Screenshots
+
+<div align="center">
+  <h4>📨 Two-Way Chat Inbox</h4>
+  <img src="assets/inbox_screenshot.png" alt="Two-Way Chat Inbox" width="95%" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+  
+  <h4>📢 Bulk Campaign Broadcaster</h4>
+  <img src="assets/send_screenshot.png" alt="Campaign Sender UI" width="95%" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+
+  <h4>📊 Real-Time Campaign Analytics</h4>
+  <img src="assets/report_screenshot.png" alt="Campaign Metrics Dashboard" width="95%" style="border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</div>
 
 ---
 
@@ -38,7 +48,7 @@ WEBHOOK_URL=https://your-public-url.com/webhook
 
 # 3. Download dependencies & start
 go mod tidy
-go run webhook.go campaign.go db.go templates.go
+go run src/webhook.go src/campaign.go src/db.go src/templates.go
 ```
 Open **[http://localhost:9090](http://localhost:9090)** in your browser.
 
